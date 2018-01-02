@@ -12,7 +12,7 @@ class Spots(db.Model):
     price =db.Column(db.Integer,nullable=False)
     type = db.Column(db.String(20),nullable=True)
     rank = db.Column(db.Integer,nullable=True,default=5)
-    # comment = db.relationship('spot_comments',backref='spot',lazy='lazy')
+    comment = db.relationship('spot_comments',backref='spot',lazy='dynamic')
 
 
 class Foods(db.Model):
@@ -26,7 +26,7 @@ class Foods(db.Model):
     pictures = db.Column(db.Text,nullable=False)
     price =db.Column(db.Integer,nullable=False)
     type = db.Column(db.String(20),nullable=True)
-    comment = db.relationship('food_comments',backref='food',lazy='lazy')
+    comment = db.relationship('food_comments',backref='food',lazy='dynamic')
 
 class Shops(db.Model):
     __tablename__='shops'
@@ -39,7 +39,7 @@ class Shops(db.Model):
     pictures = db.Column(db.Text,nullable=False)
     price =db.Column(db.Integer,nullable=False)
     type = db.Column(db.String(20),nullable=True)
-    comment = db.relationship('shop_comments',backref='shop',lazy='lazy')
+    comment = db.relationship('shop_comments',backref='shop',lazy='dynamic')
 
 
 class Hotels(db.Model):
