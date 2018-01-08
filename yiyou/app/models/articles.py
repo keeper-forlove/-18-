@@ -4,7 +4,7 @@ from datetime import datetime
 class Experience(db.Model):
     __tablename__='experience'
     id = db.Column(db.Integer,primary_key=True)
-    auth = db.Column(db.Integer,db.ForeignKey('users.id'))
+    uid = db.Column(db.Integer,db.ForeignKey('users.id'))
     title = db.Column(db.String(30),nullable=True)
     content = db.Column(db.Text,nullable=False)
     pictures = db.Column(db.Text,nullable=True)
@@ -18,7 +18,7 @@ class Questions(db.Model):
     __tablename__='questions'
     id = db.Column(db.Integer,primary_key=True)
     qid = db.Column(db.Integer,default=0)
-    auth = db.Column(db.Integer, db.ForeignKey('users.id'))
+    uid = db.Column(db.Integer, db.ForeignKey('users.id'))
     title = db.Column(db.String(30), nullable=True)
     content = db.Column(db.Text, nullable=False)
     pictures = db.Column(db.Text, nullable=True)

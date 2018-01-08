@@ -1,6 +1,11 @@
 from flask import Flask
 from app.config import config
 from app.extensions import config_extensions
+from app.views import config_blueprint
+
+#导入restful模块和相关资源类
+from flask.ext.restful import Api
+from app.views.api import CoutryListApi, CoutryApi
 
 #封装一个方法，专门用于创建Flask实例
 def create_app(config_name):
@@ -12,5 +17,14 @@ def create_app(config_name):
     config[config_name].init_app(app)
     #调用扩展初始化函数
     config_extensions(app)
-    #返回应用实例
+    #配置蓝本
+    config_blueprint(app)
+
+    #初始化api
+    api = Api(app)
+    api.add_resource(CoutryListApi, '/country')
+    api.add_resource(CoutryApi, '/country/<int:id>')
+    # api.init_app(app)
+
+    # 返回应用实例
     return app
