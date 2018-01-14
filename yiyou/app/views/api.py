@@ -1,8 +1,9 @@
 from flask import request, jsonify
 from flask_restful  import  Resource, abort
-
+from flask_login import current_user,login_user,logout_user,login_required
 from app.extensions import db
-from app.models import Country, City
+from app.models import Country, City, Spots
+
 
 class CoutryListApi(Resource):
     #get方式获取国家列表
@@ -26,6 +27,8 @@ class CoutryListApi(Resource):
     #返回数据格式：
     #{"code": 1, "id": 15,"message": "japan添加成功","name": "japan"}
     #{"code": 0,"message": "该国家已存在！"}
+    @login_required
+    #需要登录才能调用
     def post(self):
         # 查询该国家是否存在于数据库中
         countryname = request.json['name']
@@ -67,6 +70,7 @@ class CoutryApi(Resource):
                 'name': country.name,
                 'message':'成功获取%s'%country.name
             }
+
         else:
             data={
                 'code':0,
@@ -79,6 +83,8 @@ class CoutryApi(Resource):
     #返回数据：
     #{"code": 1,"message": "成功删除japan"}
     #{"code": 0,"message": "该国家不存在"}
+    # @login_required
+    #需要登录才能调用
     def delete(self, id):
         country = Country.query.filter_by(id=id).first()
         if country:
@@ -106,10 +112,11 @@ class CityListApi(Resource):
         city_list=[]
         city_all = City.query.all()
         for city in city_all:
+            country = Country.query.filter_by(id=city.countryid).first()
             data={
                 'id':city.id,
                 'name':city.name,
-                'country':city.countryid
+                'country':country.name
             }
             city_list.append(data)
         return jsonify({'citylist':city_list})
@@ -120,6 +127,8 @@ class CityListApi(Resource):
     #返回数据格式：
     #{"code": 0,"message": "beijing已存在！"}
     #{"code": 1,"country": 13,"id": 10,"message": "shanghai添加成功","name": "shanghai"}
+    # @login_required
+    #需要登录才能调用
     def post(self):
         name = request.json['name']
         countryname = request.json['countryname']
@@ -134,11 +143,12 @@ class CityListApi(Resource):
             city = City(name=name,countryid=country.id)
             db.session.add(city)
             city=City.query.filter_by(name=name).first()
+            country=Country.query.filter_by(id=city.countryid).first()
             data = {
                 'code':1,
                 'id':city.id,
                 'name':city.name,
-                'country':city.countryid,
+                'country':country.name,
                 'message': '%s添加成功' % city.name
             }
         return jsonify(data)
@@ -151,10 +161,11 @@ class CityApi(Resource):
     def get(self,id):
         city = City.query.filter_by(id=id).first()
         if city:
+            country = Country.query.filter_by(id=city.countryid).first()
             data = {
                 'id':city.id,
                 'name':city.name,
-                'country':city.countryid,
+                'country':country.name,
                 'message':'成功查询到%s'%city.name,
                 'code':1
             }
@@ -169,6 +180,8 @@ class CityApi(Resource):
     #请求地址：http://127.0.0.1:5000/city/<int:id>
     #响应数据：{"code": 0,"message": "成功删除beijing"}
     #{"code": 0,"message": "城市不存在"}
+    # @login_required
+    #需要登录才能调用
     def delete(self,id):
         city = City.query.filter_by(id=id).first()
         if city:
@@ -185,6 +198,42 @@ class CityApi(Resource):
             }
         return jsonify(data)
 
+class SpotsListApi(Resource):
+    def get(self,page):
+        start = (page-1)*10
+        end = page*10
+        data={}
+        spot_list = Spots.query.all()[start:end]
+        for spot in spot_list:
+            data[spot.name]={
+                'id':spot.id,
+                'name':spot.name,
+                'city':City.query.filter_by(id=spot.city).first().name,
+                'provience': spot.type,
+                'adress':spot.adress,
+                'price':spot.price,
+                'img_url_list':spot.pictures.split(','),
+                'detail': spot.detail
+            }
 
+        return jsonify(data)
 
-
+class SpotsByCityApi(Resource):
+    def get(self,city,page):
+        cityid = City.query.filter_by(pinyin=city).first().id
+        start=(page-1)*10
+        end = page*10
+        spots_list = Spots.query.filter_by(city=cityid)[start:end]
+        data={}
+        for spot in spots_list:
+            data[spot.name] = {
+                'id': spot.id,
+                'name': spot.name,
+                'city': City.query.filter_by(id=spot.city).first().name,
+                'provience': spot.type,
+                'adress': spot.adress,
+                'price': spot.price,
+                'img_url_list': spot.pictures.split(','),
+                'detail': spot.detail
+            }
+        return jsonify(data)

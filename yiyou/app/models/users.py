@@ -1,5 +1,4 @@
-from app.extensions import db
-
+from app.extensions import db, login_manager
 #导入UserMixin类
 from flask_login import UserMixin
 #导入密码散列及校验函数
@@ -23,16 +22,21 @@ class Users(UserMixin,db.Model):
     experiences = db.relationship('Experience',backref='user',lazy='dynamic')
 
 
-    #保护密码字段，proerty装饰器用于设置类的读方法
+    # 保护密码字段字段
     @property
     def password(self):
         raise AttributeError('密码不可读')
 
-    #设置密码，加密后存储，@password.setter装饰器，用于设置密码的写方法
+    #设置密码，加密后存储
     @password.setter
     def password(self,password):
-        self.password_hash= generate_password_hash(password)
+        self.password_hash = generate_password_hash(password)
 
     #密码校验
     def verify_password(self,password):
         return check_password_hash(self.password_hash,password)
+
+# 登录认证回调
+@login_manager.user_loader
+def load_user(uid):
+    return Users.query.get(int(uid))

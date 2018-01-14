@@ -10,7 +10,10 @@ class Country(db.Model):
 class City(db.Model):
     __tablename__='city'
     id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(50),nullable=False)
+    label = db.Column(db.String(64),nullable=False)
+    pinyin = db.Column(db.String(32),nullable=False)
+    zip = db.Column(db.String(16),nullable=False)
+    name = db.Column(db.String(64),nullable=False)
     countryid = db.Column(db.Integer,db.ForeignKey('country.id'))
 
 

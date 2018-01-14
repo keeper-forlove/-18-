@@ -5,7 +5,7 @@ class Spots(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(50),nullable=False)
     city = db.Column(db.Integer,db.ForeignKey('city.id'))
-    describe = db.Column(db.Text,nullable=True)
+    detail = db.Column(db.Text,nullable=True)
     adress = db.Column(db.String(100),nullable=False)
     score = db.Column(db.Integer,nullable=False,default=5)
     pictures = db.Column(db.Text,nullable=False)
