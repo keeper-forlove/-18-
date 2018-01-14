@@ -199,6 +199,7 @@ class CityApi(Resource):
         return jsonify(data)
 
 class SpotsListApi(Resource):
+    #获取所有景点数据，page为分页参数
     def get(self,page):
         start = (page-1)*10
         end = page*10
@@ -219,21 +220,48 @@ class SpotsListApi(Resource):
         return jsonify(data)
 
 class SpotsByCityApi(Resource):
+    #根据city获取景点数据，page为分页参数
     def get(self,city,page):
-        cityid = City.query.filter_by(pinyin=city).first().id
-        start=(page-1)*10
-        end = page*10
-        spots_list = Spots.query.filter_by(city=cityid)[start:end]
-        data={}
-        for spot in spots_list:
-            data[spot.name] = {
-                'id': spot.id,
-                'name': spot.name,
-                'city': City.query.filter_by(id=spot.city).first().name,
-                'provience': spot.type,
-                'adress': spot.adress,
-                'price': spot.price,
-                'img_url_list': spot.pictures.split(','),
-                'detail': spot.detail
+        city = City.query.filter_by(pinyin=city).first()
+        start = (page - 1) * 10
+        end = page * 10
+        #判断，如果城市名不存在
+        if not city:
+            data={
+                'code':0,
+                'message':'该城市名没有被记录！请查询其他城市！'
             }
+        #如果城市存在
+        else:
+            cityid = city.id
+            s_list = Spots.query.filter_by(city=cityid)[start:end]
+            #如果查询到指定页面数据
+            if len(s_list):
+                spot_list = []
+                for spot in s_list:
+                    spot_data = {
+                        'id': spot.id,
+                        'name': spot.name,
+                        'city': City.query.filter_by(id=spot.city).first().name,
+                        'provience': spot.type,
+                        'adress': spot.adress,
+                        'price': spot.price,
+                        'img_url_list': spot.pictures.split(','),
+                        'detail': spot.detail
+                    }
+                    spot_list.append(spot_data)
+
+                data={
+                    'code':1,
+                    'message':'成功查询到数据！',
+                    'spot_list':spot_list
+                }
+            #如果没有指定页面数据
+            else:
+                data={
+                    'code':0,
+                    'message':'没有查询到数据！'
+                }
+
         return jsonify(data)
+
