@@ -2,14 +2,16 @@ from flask import request, jsonify
 from flask_restful  import  Resource, abort
 from flask_login import current_user,login_user,logout_user,login_required
 from app.extensions import db
-from app.models import Country, City, Spots
+from app.models import Country, City, Spots, Foods, Hotels, Shops
 
+####################################################获取国家列表、添加国家####################################################
 
 class CoutryListApi(Resource):
     #get方式获取国家列表
     #请求地址：http://127.0.0.1:5000/country/
     #返回数据格式：{"countrylist": [{"id": 10,"name": "china"},{"id": 11,"name": "japan"}]}
     def get(self):
+        print(request.args['name'])
         country_list = []
         country_all = Country.query.all()
         for country in country_all:
@@ -54,7 +56,7 @@ class CoutryListApi(Resource):
             }
         return jsonify(data)
 
-
+####################################################获取指定国家、删除国家####################################################
 class CoutryApi(Resource):
     #GET方法根据id获取指定国家
     #请求地址：http://127.0.0.1:5000/country/<int:id>
@@ -101,7 +103,7 @@ class CoutryApi(Resource):
             }
         return jsonify(data)
 
-
+####################################################获取城市列表、添加新城市####################################################
 
 class CityListApi(Resource):
 
@@ -153,6 +155,7 @@ class CityListApi(Resource):
             }
         return jsonify(data)
 
+####################################################获取城市、删除城市####################################################
 class CityApi(Resource):
     #通过id获取指定城市
     #请求地址：http://127.0.0.1:5000/city/<int:id>
@@ -198,33 +201,72 @@ class CityApi(Resource):
             }
         return jsonify(data)
 
-class SpotsListApi(Resource):
-    #获取所有景点数据，page为分页参数
-    def get(self,page):
+####################################################通过类别查询所有城市数据####################################################
+
+#根据category参数(spots、hotels、food、shops)获取数据，page为分页参数
+class ConsumesListApi(Resource):
+
+    type_dir={
+        'spots':Spots(),
+        'food':Foods(),
+        'shops':Shops(),
+        'hotels':Hotels()
+    }
+
+    def get(self,category):
+        page=int(request.args['page'])
         start = (page-1)*10
         end = page*10
-        data={}
-        spot_list = Spots.query.all()[start:end]
-        for spot in spot_list:
-            data[spot.name]={
-                'id':spot.id,
-                'name':spot.name,
-                'city':City.query.filter_by(id=spot.city).first().name,
-                'provience': spot.type,
-                'adress':spot.adress,
-                'price':spot.price,
-                'img_url_list':spot.pictures.split(','),
-                'detail': spot.detail
+        #根据category和page获取相应的数据对象的列表
+        obj_list = self.type_dir[category].query.all()[start:end]
+        data = {}
+        if not len(obj_list):
+            data={
+                'code':0,
+                'message':'没有数据'
+            }
+        #遍历列表中的数据对象，将其字段取出存入字典
+        else:
+            data_list = []
+            for obj in obj_list:
+                item_data={
+                    'id':obj.id,
+                    'name':obj.name,
+                    'city':City.query.filter_by(id=obj.city).first().name,
+                    'provience': obj.type,
+                    'adress':obj.adress,
+                    'price':obj.price,
+                    'img_url_list':obj.pictures.split(','),
+                    'detail': obj.detail
+                }
+                data_list.append(item_data)
+            data={
+                'code':1,
+                'message':'查询成功',
+                'list':data_list
             }
 
         return jsonify(data)
 
-class SpotsByCityApi(Resource):
+####################################################通过类别获取数据，并通过city参数和page参数进行筛选####################################################
+
+class ConsumesListByCityApi(Resource):
+    type_dir={
+        'spots':Spots(),
+        'food':Foods(),
+        'shops':Shops(),
+        'hotels':Hotels()
+    }
+
     #根据city获取景点数据，page为分页参数
-    def get(self,city,page):
-        city = City.query.filter_by(pinyin=city).first()
+    def get(self,category):
+        city=request.args['city']
+        page=int(request.args['page'])
+        modelObj = self.type_dir[category]
         start = (page - 1) * 10
         end = page * 10
+
+        city = City.query.filter_by(pinyin=city).first()
         #判断，如果城市名不存在
         if not city:
             data={
@@ -234,27 +276,27 @@ class SpotsByCityApi(Resource):
         #如果城市存在
         else:
             cityid = city.id
-            s_list = Spots.query.filter_by(city=cityid)[start:end]
+            obj_list = modelObj.query.filter_by(city=cityid)[start:end]
             #如果查询到指定页面数据
-            if len(s_list):
-                spot_list = []
-                for spot in s_list:
-                    spot_data = {
-                        'id': spot.id,
-                        'name': spot.name,
-                        'city': City.query.filter_by(id=spot.city).first().name,
-                        'provience': spot.type,
-                        'adress': spot.adress,
-                        'price': spot.price,
-                        'img_url_list': spot.pictures.split(','),
-                        'detail': spot.detail
+            if len(obj_list):
+                data_list = []
+                for obj in obj_list:
+                    obj_data = {
+                        'id': obj.id,
+                        'name': obj.name,
+                        'city': City.query.filter_by(id=obj.city).first().name,
+                        'provience': obj.type,
+                        'adress': obj.adress,
+                        'price': obj.price,
+                        'img_url_list': obj.pictures.split(','),
+                        'detail': obj.detail
                     }
-                    spot_list.append(spot_data)
+                    data_list.append(obj_data)
 
                 data={
                     'code':1,
                     'message':'成功查询到数据！',
-                    'spot_list':spot_list
+                    'spot_list':data_list
                 }
             #如果没有指定页面数据
             else:
@@ -264,4 +306,3 @@ class SpotsByCityApi(Resource):
                 }
 
         return jsonify(data)
-
