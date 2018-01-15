@@ -31,7 +31,7 @@ def create_app(config_name):
     api.add_resource(CityApi, '/city/<int:id>')
     api.add_resource(RegisterApi,'/register/','/register')
     api.add_resource(LoginApi,'/login/','/login')
-    api.add_resource(ConsumesListApi, '/<string:category>')
+    # api.add_resource(ConsumesListApi, '/<string:category>')
     api.add_resource(ConsumesListByCityApi,'/<string:category>')
     # api.init_app(app)
 
