@@ -15,7 +15,7 @@
  
 3.根据id获取指定国家
 
-- 请求地址：http://127.0.0.1:5000/country/\<int:id\>
+- 请求地址：http://127.0.0.1:5000/country/<int:id>
 - 请求方式：GET
 - 返回数据格式：
 - {"code": 1,"id": 13,"message": "成功获取china","name": "china"}
@@ -23,7 +23,7 @@
 
 4.根据id删除指定国家
 
-- 请求地址：http://127.0.0.1:5000/country/\<int:id\>
+- 请求地址：http://127.0.0.1:5000/country/<int:id>
 - 请求方式：DELETE
 - 返回数据格式：
 - {"code": 0,"message": "该国家不存在"}
@@ -48,7 +48,7 @@
 
 7.通过id获取指定城市
 
-- 请求地址：http://127.0.0.1:5000/city/\<int:id\>
+- 请求地址：http://127.0.0.1:5000/city/<int:id>
 - 请求方式：GET
 - 响应数据：
 - {"city": { "code": 1,"country": "中国","id": 5,"message": "成功查询到beijing","name": "beijing"}}
@@ -56,7 +56,7 @@
 
 8.通过id删除指定城市
 
-- 请求地址：http://127.0.0.1:5000/city/\<int:id\>
+- 请求地址：http://127.0.0.1:5000/city/<int:id>
 - 请求方式：DELETE
 - 响应数据：
 - {"code": 0,"message": "成功删除beijing"}
@@ -81,14 +81,29 @@
 - { "code": 0, "message": "用户不存在"}
 - { "code": 0,"message": "密码错误！"}
 
-11.获取所有景点
 
-- 请求地址：http://127.0.0.1:5000/spots/\<int:page>
+11.获取景点数据
+
+- 请求地址：http://127.0.0.1:5000/spots
 - 请求方式：GET
-- 响应数据：
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 例子：http://127.0.0.1:5000/spots?limit=5&page=1
+- 响应结果：
+  - 1.数据超出查询范围：
+```
+ {"code": 0,"message": "请求页面超出数据量查询范围！"}
+```
+	
+  - 2.正常返回结果：
 
 ```
-{"重庆航空温泉 ": {
+{
+    "code": 1,
+    "message": "查询成功",
+    "data_list": [
+    {
 	
 		"id": 218,
 
@@ -111,28 +126,37 @@
 		"http://m.tuniucdn.com/filebroker/cdn/olb/0d/1a/0d1a04ed4528cc6a001a4d8cfe86f19d_w240_h95_c1_t0.png",
 		"http://m.tuniucdn.com/filebroker/cdn/snc/c0/af/c0af4c31701924d24dc0d6ca5f11a8e7_w145_h95_c1_t0.jpg",
 		""],}，
-“崆山白云洞”:{...}
+{		
+	"id": 218,
+
+	"name": "重庆航空温泉 ",
+	...
 }
+]
 ```
 
-12.通过城市获取景点
+12.根据城市获取景点数据
 
-- 请求地址：http://127.0.0.1:5000/spots/\<city>/\<page>
+- 请求地址：http://127.0.0.1:5000/spots/<string:city>
 - 请求方式：GET
-- 举例：http://127.0.0.1:5000/spots/Beijing/1
-- <city>参数：城市参数，城市名的拼音全拼，首字母大写
-- <page>参数：页数，每页10条记录
-- 响应数据： 
-  - 1.如果城市参数错误，返回以下数据：
-    
-    	{"code": 0,"message": "该城市名没有被记录！请查询其他城市！"}
-  - 2.如果指定页面超过可查询页面范围，返回以下数据：
-  
-      {"code": 0,"message": "没有查询到数据！"}
-  - 3.如果参数均正确，返回以下数据
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 例子：http://127.0.0.1:5000/spots/Beijing?limit=5&page=10
+- 响应结果：
+  - 1.数据超出查询范围：
+```
+ {"code": 0,"message": "请求页面超出数据量查询范围！"}
+```
+	
+  - 2.正常返回结果：
 
 ```
-{"重庆航空温泉 ": {
+{
+    "code": 1,
+    "message": "查询成功",
+    "data_list": [
+    {
 	
 		"id": 218,
 
@@ -155,7 +179,62 @@
 		"http://m.tuniucdn.com/filebroker/cdn/olb/0d/1a/0d1a04ed4528cc6a001a4d8cfe86f19d_w240_h95_c1_t0.png",
 		"http://m.tuniucdn.com/filebroker/cdn/snc/c0/af/c0af4c31701924d24dc0d6ca5f11a8e7_w145_h95_c1_t0.jpg",
 		""],}，
-“崆山白云洞”:{...}
+{		
+	"id": 218,
+
+	"name": "重庆航空温泉 ",
+	...
 }
+]
 ```
+
+
+13.获取酒店数据
+
+- 请求地址：http://127.0.0.1:5000/hotels
+- 请求方式：GET
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 例子：http://127.0.0.1:5000/hotels?limit=5&page=1
+- 响应结果：同上
+ ```
+
+14.根据城市获取酒店数据
+
+- 请求地址：http://127.0.0.1:5000/hotels/<string:city>
+- 请求方式：GET
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 例子：http://127.0.0.1:5000/hotels/Beijing?limit=5&page=10
+- 响应结果：同上
+ ```
+
+15.获取酒店数据
+
+- 请求地址：http://127.0.0.1:5000/foods
+- 请求方式：GET
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 例子：http://127.0.0.1:5000/foods?limit=5&page=1
+- 响应结果：同上
+ ```
+
+16.根据城市获取酒店数据
+
+- 请求地址：http://127.0.0.1:5000/foods/<string:city>
+- 请求方式：GET
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 例子：http://127.0.0.1:5000/foods/Beijing?limit=5&page=10
+- 响应结果：同上
+ ```
+
+
+
+
+
 

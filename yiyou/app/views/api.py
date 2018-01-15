@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful  import  Resource, abort
 from flask_login import current_user,login_user,logout_user,login_required
 from app.extensions import db
-from app.models import Country, City, Spots
+from app.models import Country, City, Spots, Hotels, Foods
 
 
 class CoutryListApi(Resource):
@@ -198,38 +198,69 @@ class CityApi(Resource):
             }
         return jsonify(data)
 
+################################################  获取景点数据  ################################################
+
 class SpotsListApi(Resource):
     #获取所有景点数据，page为分页参数
-    def get(self,page):
-        start = (page-1)*10
-        end = page*10
-        data={}
-        spot_list = Spots.query.all()[start:end]
-        for spot in spot_list:
-            data[spot.name]={
-                'id':spot.id,
-                'name':spot.name,
-                'city':City.query.filter_by(id=spot.city).first().name,
-                'provience': spot.type,
-                'adress':spot.adress,
-                'price':spot.price,
-                'img_url_list':spot.pictures.split(','),
-                'detail': spot.detail
+    def get(self):
+        page =int(request.args.get('page',1))
+        limit=int(request.args.get('limit',10))
+        start = (page-1)*limit
+        end = page*limit
+
+        if page < 1 or limit < 0:
+            data = {
+                'code': 0,
+                'message': '参数不合法'
+            }
+            return jsonify(data)
+
+        if (page-1)*limit>=Spots.query.count():
+            data={
+                'code':0,
+                'message':'没有数据'
+            }
+        else:
+            spot_list = Spots.query.all()[start:end]
+            data_list =[]
+            for spot in spot_list:
+                spot_data={
+                    'id':spot.id,
+                    'name':spot.name,
+                    'city':City.query.filter_by(id=spot.city).first().name,
+                    'provience': spot.type,
+                    'adress':spot.adress,
+                    'price':spot.price,
+                    'img_url_list':spot.pictures.split(','),
+                    'detail': spot.detail}
+                data_list.append(spot_data)
+
+            data={
+                'code':'1',
+                'message':'成功！',
+                'data_list':data_list
             }
 
         return jsonify(data)
 
+
+
+# -----------------------------------------------  通过城市获取景点数据  -----------------------------------------------#
+
 class SpotsByCityApi(Resource):
     #根据city获取景点数据，page为分页参数
-    def get(self,city,page):
+    def get(self,city):
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+
         city = City.query.filter_by(pinyin=city).first()
-        start = (page - 1) * 10
-        end = page * 10
         #判断，如果城市名不存在
         if not city:
             data={
                 'code':0,
-                'message':'该城市名没有被记录！请查询其他城市！'
+                'message':'没有该城市！'
             }
         #如果城市存在
         else:
@@ -260,8 +291,183 @@ class SpotsByCityApi(Resource):
             else:
                 data={
                     'code':0,
-                    'message':'没有查询到数据！'
+                    'message':'没有数据！'
                 }
 
         return jsonify(data)
 
+################################################  获取酒店数据  ################################################
+
+class HotelsListApi(Resource):
+    #获取所有景点数据，page为分页参数
+    def get(self):
+        page =int(request.args.get('page',1))
+        limit=int(request.args.get('limit',10))
+        start = (page-1)*limit
+        end = page*limit
+        if page<1 or limit<0:
+            data={
+                'code':0,
+                'message':'参数不合法'
+            }
+            return jsonify(data)
+
+        if (page-1)*limit>=Hotels.query.count():
+            data={
+                'code':0,
+                'message':'没有数据了！'
+            }
+        else:
+            hotel_list = Hotels.query.all()[start:end]
+            data_list =[]
+            for hotel in hotel_list:
+                spot_data={
+                    'id':hotel.id,
+                    'name':hotel.name,
+                    'city':City.query.filter_by(id=hotel.city).first().name,
+                    'provience': hotel.type,
+                    'adress':hotel.adress,
+                    'price':hotel.price,
+                    'img_url_list':hotel.pictures.split(','),
+                    'detail': hotel.detail}
+                data_list.append(spot_data)
+
+            data={
+                'code':'1',
+                'message':'成功！',
+                'data_list':data_list
+            }
+
+        return jsonify(data)
+
+#-----------------------------------------------  通过城市获取酒店数据  -----------------------------------------------#
+
+class HotelsByCityApi(Resource):
+    # 根据city获取景点数据，page为分页参数
+    def get(self, city):
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+
+        if page < 1 or limit < 0:
+            data = {'code': 0,'message': '参数不合法'}
+            return jsonify(data)
+
+        city = City.query.filter_by(pinyin=city).first()
+        # 判断，如果城市名不存在
+        if not city:
+            data = {'code': 0,'message': '该城市名没有被记录！请查询其他城市！'}
+        # 如果城市存在
+        else:
+            cityid = city.id
+            h_list = Hotels.query.filter_by(city=cityid)[start:end]
+            # 如果查询到指定页面数据
+            if len(h_list):
+                hotel_list = []
+                for hotel in h_list:
+                    hotel_data = {
+                        'id': hotel.id,'name': hotel.name,
+                        'city': City.query.filter_by(id=hotel.city).first().name,
+                        'provience': hotel.type,
+                        'adress': hotel.adress,
+                        'price': hotel.price,
+                        'img_url_list': hotel.pictures.split(','),
+                        'detail': hotel.detail
+                    }
+                    hotel_list.append(hotel_data)
+
+                data = {'code': 1,'message': '成功！','hotel_list': hotel_list}
+            # 如果没有指定页面数据
+            else:
+                data = {'code': 0,'message': '没有数据'}
+
+        return jsonify(data)
+
+################################################  获取美食数据  ################################################
+
+class FoodslsListApi(Resource):
+    # 获取所有景点数据，page为分页参数
+    def get(self):
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+        if page < 1 or limit < 0:
+            data = {
+                'code': 0,
+                'message': '参数不合法'
+            }
+            return jsonify(data)
+
+        if (page - 1) * limit >= Foods.query.count():
+            data = {
+                'code': 0,
+                'message': '没有数据了！'
+            }
+        else:
+            food_list = Foods.query.all()[start:end]
+            data_list = []
+            for food in food_list:
+                food_data = {
+                    'id': food.id,
+                    'name': food.name,
+                    'city': City.query.filter_by(id=food.city).first().name,
+                    'provience': food.type,
+                    'adress': food.adress,
+                    'price': food.price,
+                    'img_url_list': food.pictures.split(','),
+                    'detail': food.detail}
+                data_list.append(food_data)
+
+            data = {
+                'code': '1',
+                'message': '成功！',
+                'data_list': data_list
+            }
+
+        return jsonify(data)
+
+# -----------------------------------------------  通过城市获取美食数据  -----------------------------------------------#
+
+class FoodsByCityApi(Resource):
+    # 根据city获取景点数据，page为分页参数
+    def get(self, city):
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+
+        if page < 1 or limit < 0:
+            data = {'code': 0, 'message': '参数不合法'}
+            return jsonify(data)
+
+        city = City.query.filter_by(pinyin=city).first()
+        # 判断，如果城市名不存在
+        if not city:
+            data = {'code': 0, 'message': '该城市名没有被记录！请查询其他城市！'}
+        # 如果城市存在
+        else:
+            cityid = city.id
+            f_list = Foods.query.filter_by(city=cityid)[start:end]
+            # 如果查询到指定页面数据
+            if len(f_list):
+                food_list = []
+                for food in f_list:
+                    food_data = {
+                        'id': food.id, 'name': food.name,
+                        'city': City.query.filter_by(id=food.city).first().name,
+                        'provience': food.type,
+                        'adress': food.adress,
+                        'price': food.price,
+                        'img_url_list': food.pictures.split(','),
+                        'detail': food.detail
+                    }
+                    food_list.append(food_data)
+
+                data = {'code': 1, 'message': '成功！', 'food_list': food_list}
+            # 如果没有指定页面数据
+            else:
+                data = {'code': 0, 'message': '没有数据'}
+
+        return jsonify(data)
