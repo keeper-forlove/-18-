@@ -1,5 +1,6 @@
 
 from .main import main
+from .articals import article
 # from .user import user
 
 
@@ -7,6 +8,7 @@ from .main import main
 DEFAULT_BLUEPRINT = (
     # 蓝本，前缀
     (main, ''),
+    (article,'/article')
     # (user, '/user'),
 )
 

@@ -211,6 +211,7 @@ class SpotsListApi(Resource):
         if page < 1 or limit < 0:
             data = {
                 'code': 0,
+                'type':'spots',
                 'message': '参数不合法'
             }
             return jsonify(data)
@@ -218,6 +219,7 @@ class SpotsListApi(Resource):
         if (page-1)*limit>=Spots.query.count():
             data={
                 'code':0,
+                'type': 'spots',
                 'message':'没有数据'
             }
         else:
@@ -237,6 +239,7 @@ class SpotsListApi(Resource):
 
             data={
                 'code':'1',
+                'type': 'spots',
                 'message':'成功！',
                 'data_list':data_list
             }
@@ -260,6 +263,7 @@ class SpotsByCityApi(Resource):
         if not city:
             data={
                 'code':0,
+                'type': 'spots',
                 'message':'没有该城市！'
             }
         #如果城市存在
@@ -284,6 +288,7 @@ class SpotsByCityApi(Resource):
 
                 data={
                     'code':1,
+                    'type': 'spots',
                     'message':'成功查询到数据！',
                     'spot_list':spot_list
                 }
@@ -291,6 +296,7 @@ class SpotsByCityApi(Resource):
             else:
                 data={
                     'code':0,
+                    'type': 'spots',
                     'message':'没有数据！'
                 }
 
@@ -308,6 +314,7 @@ class HotelsListApi(Resource):
         if page<1 or limit<0:
             data={
                 'code':0,
+                'type': 'hotel',
                 'message':'参数不合法'
             }
             return jsonify(data)
@@ -315,6 +322,7 @@ class HotelsListApi(Resource):
         if (page-1)*limit>=Hotels.query.count():
             data={
                 'code':0,
+                'type': 'hotel',
                 'message':'没有数据了！'
             }
         else:
@@ -334,6 +342,7 @@ class HotelsListApi(Resource):
 
             data={
                 'code':'1',
+                'type': 'hotel',
                 'message':'成功！',
                 'data_list':data_list
             }
@@ -351,13 +360,13 @@ class HotelsByCityApi(Resource):
         end = page * limit
 
         if page < 1 or limit < 0:
-            data = {'code': 0,'message': '参数不合法'}
+            data = {'code': 0,'type':'hotel','message': '参数不合法'}
             return jsonify(data)
 
         city = City.query.filter_by(pinyin=city).first()
         # 判断，如果城市名不存在
         if not city:
-            data = {'code': 0,'message': '该城市名没有被记录！请查询其他城市！'}
+            data = {'code': 0,'type':'hotel','message': '该城市名没有被记录！请查询其他城市！'}
         # 如果城市存在
         else:
             cityid = city.id
@@ -377,10 +386,10 @@ class HotelsByCityApi(Resource):
                     }
                     hotel_list.append(hotel_data)
 
-                data = {'code': 1,'message': '成功！','hotel_list': hotel_list}
+                data = {'code': 1,'type':'hotel','message': '成功！','hotel_list': hotel_list}
             # 如果没有指定页面数据
             else:
-                data = {'code': 0,'message': '没有数据'}
+                data = {'code': 0,'type':'hotel','message': '没有数据'}
 
         return jsonify(data)
 
@@ -396,6 +405,7 @@ class FoodslsListApi(Resource):
         if page < 1 or limit < 0:
             data = {
                 'code': 0,
+                'type': 'food',
                 'message': '参数不合法'
             }
             return jsonify(data)
@@ -403,6 +413,7 @@ class FoodslsListApi(Resource):
         if (page - 1) * limit >= Foods.query.count():
             data = {
                 'code': 0,
+                'type': 'food',
                 'message': '没有数据了！'
             }
         else:
@@ -422,6 +433,7 @@ class FoodslsListApi(Resource):
 
             data = {
                 'code': '1',
+                'type': 'food',
                 'message': '成功！',
                 'data_list': data_list
             }
@@ -445,7 +457,7 @@ class FoodsByCityApi(Resource):
         city = City.query.filter_by(pinyin=city).first()
         # 判断，如果城市名不存在
         if not city:
-            data = {'code': 0, 'message': '该城市名没有被记录！请查询其他城市！'}
+            data = {'code': 0,'type': 'food', 'message': '该城市名没有被记录！请查询其他城市！'}
         # 如果城市存在
         else:
             cityid = city.id
@@ -465,9 +477,9 @@ class FoodsByCityApi(Resource):
                     }
                     food_list.append(food_data)
 
-                data = {'code': 1, 'message': '成功！', 'food_list': food_list}
+                data = {'code': 1, 'type': 'food','message': '成功！', 'food_list': food_list}
             # 如果没有指定页面数据
             else:
-                data = {'code': 0, 'message': '没有数据'}
+                data = {'code': 0, 'type': 'food','message': '没有数据'}
 
         return jsonify(data)

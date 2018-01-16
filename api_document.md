@@ -232,9 +232,37 @@
 - 例子：http://127.0.0.1:5000/foods/Beijing?limit=5&page=10
 - 响应结果：同上
  ```
+ 
+17.发布评论
+
+- 请求地址：http://127.0.0.1:5000/article/comments
+- 请求方式：POST
+- 请求参数：
+ 
+ ```python
+ type:类型，可选值（景点、酒店、美食)
+ 
+ tid:该条数据对应的id
+ 
+ uid:发布评论者的id
+ 
+ content:评论内容
+ ```
+- 响应结果：{ "code": 1, "message": "添加成功！" }
 
 
+18.发布游记
 
+- 请求地址：http://127.0.0.1:5000/article/experience
+- 请求方式：POST
+- 请求参数：
 
+```python
+"uid":发布者id
+"type":游记类型（景点、酒店、美食)
+"title"：游记标题
+"content":游记内容
+"city"：属于哪个城市的游记
+```
 
-
+- 响应结果：同上

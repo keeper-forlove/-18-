@@ -2,7 +2,7 @@
 # from . import articles,consumes,location,users,comment
 from .users import Users
 from .articles import Experience,Questions
-from .comment import ShopsComment,SpotComment,FoodsComment,HotelsComment
+from .comment import Comments
 from .location import City,Country
 from .consumes import Foods,Shops,Spots,Hotels
 
