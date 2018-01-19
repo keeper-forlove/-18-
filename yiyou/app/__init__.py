@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from app.config import config
 from app.extensions import config_extensions
 from app.views import config_blueprint
@@ -8,8 +8,7 @@ from flask.ext.restful import Api
 from app.views.api import CoutryListApi, CoutryApi, CityListApi, CityApi, SpotsListApi, SpotsByCityApi, HotelsByCityApi, \
     HotelsListApi, FoodslsListApi, FoodsByCityApi, ExperiencelsListApi, ExperienceByCityApi
 
-#封装一个方法，专门用于创建Flask实例
-from app.views.users import RegisterApi, LoginApi
+
 
 
 def create_app(config_name):
@@ -30,8 +29,6 @@ def create_app(config_name):
     api.add_resource(CoutryApi, '/country/<int:id>')
     api.add_resource(CityListApi, '/city/')
     api.add_resource(CityApi, '/city/<int:id>')
-    api.add_resource(RegisterApi,'/register/','/register')
-    api.add_resource(LoginApi,'/login/','/login')
     api.add_resource(SpotsListApi,'/spots/','/spots')
     api.add_resource(SpotsByCityApi,'/spots/<string:city>','/spots/<string:city>/')
     api.add_resource(HotelsListApi,'/hotels/','/hotels')
@@ -45,3 +42,34 @@ def create_app(config_name):
 
     # 返回应用实例
     return app
+
+
+def config_errorhandler(app):
+    # 如果在蓝本中定制只针对本蓝本中的错误有效
+    #可以使用app_errorhandler定制全局错误页面
+    @app.errorhandler(404)
+    def page_not_found(e):
+        data = {'code':1,'message': 'page not found'}
+        return jsonify(data)
+
+    @app.errorhandler(403)
+    def page_not_found(e):
+        data = {'code':2,'message': 'Forbidden'}
+        return jsonify(data)
+
+    @app.errorhandler(400)
+    def page_not_found(e):
+        data = {'code':2,'message': '请求错误'}
+        return jsonify(data)
+
+    @app.errorhandler(401)
+    def page_not_found(e):
+        data = {'code':3,'message': '需要登陆才能访问'}
+        return jsonify(data)
+
+
+    @app.errorhandler(405)
+    def page_not_found(e):
+        data = {'code':4,'message': '请求方式错误'}
+        return jsonify(data)
+

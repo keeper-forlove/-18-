@@ -64,22 +64,33 @@
 
 9.用户注册
 
-- 请求地址：http://127.0.0.1:5000/register/
+- 请求地址：http://127.0.0.1:5000/user/register/
 - 请求方式：POST
-- 请求数据格式：form表单提交（username 、password 、email）
+- 请求数据格式：json
+- 请求参数：username、password、mail:
 - 响应数据：
-- { "code": 0,"message": "该用户名已被注册，请使用其他用户名！"}
-- { "code": 1,"message": "注册成功！","username": "laowu3"}
+	- 参数不全：{'code': 0, 'message': '请填写空缺数据'}
+	- 用户名已存在：{'code': 1, 'message': '该用户已经存在,请更换用户名'}
+	- 邮箱已存在：{'code': 2, 'message': '此邮箱已注册,请更换邮箱'}
+	- 成功：{'code': 3, 'message': '请前往邮箱激活账号'}
 
 10.用户登录
 
-- 请求地址：http://127.0.0.1:5000/login/
+- 请求地址：http://127.0.0.1:5000/user/login/
 - 请求方式：POST
-- 请求数据格式：form表单提交（username 、password）
+- 请求数据格式：json
+- 请求参数：username_or_mail、password
 - 响应数据：
-- { "code": 1,"message": "登录成功！"}
-- { "code": 0, "message": "用户不存在"}
-- { "code": 0,"message": "密码错误！"}
+	- 登录成功：{'code': 1, 'message': '登陆成功','id':u_username.id}
+	- 登录失败：
+		- 情况1：{'code': 0, 'message': '登录失败,用户邮箱未激活'}
+		- 情况2：{'code': 0, 'message': '用户名与密码不匹配'}
+		- 情况3：{'code': 0, 'message': '邮箱与密码不匹配'}
+		- 情况4：{'code': 0, 'message': '登录失败,用户邮箱未激活'}
+		- 情况5：{'code': 0, 'message': '用户名或邮箱不存在'}
+		- 情况6：{'code':0,'message':'数据格式错误'}
+		
+		
 
 
 11.获取景点数据

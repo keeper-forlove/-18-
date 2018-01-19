@@ -1,0 +1,2 @@
+Hello {{ username }}
+点击链接完成激活，{{ url_for('change_mail.change',token = token , _external = True) }}
