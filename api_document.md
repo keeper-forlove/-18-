@@ -99,6 +99,7 @@
   - 2.正常返回结果：
 
 ```
+#common说明：common整体是评论列表，其中每条是一个元组,格式如：[(uid,create_time,content),(),()...]
 {
     "code": 1,
     "message": "查询成功",
@@ -110,7 +111,11 @@
 		"name": "重庆航空温泉 ",
 		
 		"city": "重庆",
+		"common": [
+                [4,"Fri, 19 Jan 2018 03:42:38 GMT","常州真好玩"]，
     
+                ]
+ 
 		"provience": "重庆"，
     
 		"adress": "重庆市重庆巴南区东泉镇。",
@@ -197,7 +202,7 @@
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
 - 例子：http://127.0.0.1:5000/hotels?limit=5&page=1
-- 响应结果：同上
+- 响应结果：同上(api12)
  ```
 
 14.根据城市获取酒店数据
@@ -208,7 +213,7 @@
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
 - 例子：http://127.0.0.1:5000/hotels/Beijing?limit=5&page=10
-- 响应结果：同上
+- 响应结果：同上(api12)
  ```
 
 15.获取酒店数据
@@ -219,7 +224,7 @@
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
 - 例子：http://127.0.0.1:5000/foods?limit=5&page=1
-- 响应结果：同上
+- 响应结果：同上(api12)
  ```
 
 16.根据城市获取酒店数据
@@ -230,7 +235,7 @@
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
 - 例子：http://127.0.0.1:5000/foods/Beijing?limit=5&page=10
-- 响应结果：同上
+- 响应结果：同上(api12)
  ```
  
 17.发布评论
@@ -240,7 +245,7 @@
 - 请求参数：
  
  ```python
- type:类型，可选值（景点、酒店、美食)
+ type:类型，可选值（'spots'、'hotels'、‘foods'、'shops')
  
  tid:该条数据对应的id
  
@@ -259,10 +264,54 @@
 
 ```python
 "uid":发布者id
-"type":游记类型（景点、酒店、美食)
+"type":游记类型（'spots'、'hotels'、‘foods'、'shops')
 "title"：游记标题
 "content":游记内容
 "city"：属于哪个城市的游记
 ```
 
-- 响应结果：同上
+- 响应结果：同上(api17)
+
+19.获取所有游记
+
+- 请求地址：http://127.0.0.1:5000/experiences
+- 请求方式：GET
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 举例：http://127.0.0.1:5000/experiences?limit=5&page=1
+- 响应结果：
+
+```
+{
+   
+    "code": "1",
+   
+    "data_list": [
+        
+        {
+            "city": "北京",
+            "content": "这个景点真好，非常喜欢",
+            "create_time": "Tue, 16 Jan 2018 13:45:04 GMT",
+            "id": 1,
+            "title": "北京游览心得",
+            "type": "景点",
+            "uid": 4
+        }
+    ],
+    
+    "message": "成功！",
+    
+    "type": "experience"
+}
+```
+
+20.根据城市获取所有游记
+
+- 请求地址：http://127.0.0.1:5000/experiences/<string:city>
+- 请求方式：GET
+- get传参数：
+  - page参数：请求第几页数据
+  - limit参数：每页请求多少条数据
+- 举例：http://127.0.0.1:5000/experiences/Beijing/?limit=5&page=1
+- 响应结果：同上（api19)

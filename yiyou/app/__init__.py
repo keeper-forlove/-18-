@@ -6,7 +6,7 @@ from app.views import config_blueprint
 #导入restful模块和相关资源类
 from flask.ext.restful import Api
 from app.views.api import CoutryListApi, CoutryApi, CityListApi, CityApi, SpotsListApi, SpotsByCityApi, HotelsByCityApi, \
-    HotelsListApi, FoodslsListApi, FoodsByCityApi
+    HotelsListApi, FoodslsListApi, FoodsByCityApi, ExperiencelsListApi, ExperienceByCityApi
 
 #封装一个方法，专门用于创建Flask实例
 from app.views.users import RegisterApi, LoginApi
@@ -38,6 +38,8 @@ def create_app(config_name):
     api.add_resource(HotelsByCityApi,'/hotels/<string:city>','/hotels/<string:city>/')
     api.add_resource(FoodslsListApi,'/foods/','/foods')
     api.add_resource(FoodsByCityApi,'/foods/<string:city>','/foods/<string:city>/')
+    api.add_resource(ExperiencelsListApi,'/experiences/','/experiences')
+    api.add_resource(ExperienceByCityApi,'/experiences/<string:city>','/experiences/<string:city>/')
 
     # api.init_app(app)
 

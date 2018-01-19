@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful  import  Resource, abort
 from flask_login import current_user,login_user,logout_user,login_required
 from app.extensions import db
-from app.models import Country, City, Spots, Hotels, Foods
+from app.models import Country, City, Spots, Hotels, Foods, Experience
 
 
 class CoutryListApi(Resource):
@@ -234,7 +234,9 @@ class SpotsListApi(Resource):
                     'adress':spot.adress,
                     'price':spot.price,
                     'img_url_list':spot.pictures.split(','),
-                    'detail': spot.detail}
+                    'detail': spot.detail,
+                    'commens':spot.comments
+                }
                 data_list.append(spot_data)
 
             data={
@@ -282,7 +284,8 @@ class SpotsByCityApi(Resource):
                         'adress': spot.adress,
                         'price': spot.price,
                         'img_url_list': spot.pictures.split(','),
-                        'detail': spot.detail
+                        'detail': spot.detail,
+                        'commens': spot.comments
                     }
                     spot_list.append(spot_data)
 
@@ -337,7 +340,9 @@ class HotelsListApi(Resource):
                     'adress':hotel.adress,
                     'price':hotel.price,
                     'img_url_list':hotel.pictures.split(','),
-                    'detail': hotel.detail}
+                    'detail': hotel.detail,
+                    'commens': hotel.comments
+                }
                 data_list.append(spot_data)
 
             data={
@@ -382,7 +387,8 @@ class HotelsByCityApi(Resource):
                         'adress': hotel.adress,
                         'price': hotel.price,
                         'img_url_list': hotel.pictures.split(','),
-                        'detail': hotel.detail
+                        'detail': hotel.detail,
+                        'commens': hotel.comments
                     }
                     hotel_list.append(hotel_data)
 
@@ -428,7 +434,9 @@ class FoodslsListApi(Resource):
                     'adress': food.adress,
                     'price': food.price,
                     'img_url_list': food.pictures.split(','),
-                    'detail': food.detail}
+                    'detail': food.detail,
+                    'commens': food.comments
+                }
                 data_list.append(food_data)
 
             data = {
@@ -473,7 +481,8 @@ class FoodsByCityApi(Resource):
                         'adress': food.adress,
                         'price': food.price,
                         'img_url_list': food.pictures.split(','),
-                        'detail': food.detail
+                        'detail': food.detail,
+                        'commens': food.comments
                     }
                     food_list.append(food_data)
 
@@ -481,5 +490,97 @@ class FoodsByCityApi(Resource):
             # 如果没有指定页面数据
             else:
                 data = {'code': 0, 'type': 'food','message': '没有数据'}
+
+        return jsonify(data)
+
+################################################  获取所有游记  ################################################
+
+class ExperiencelsListApi(Resource):
+    # 获取所有游记，page为分页参数
+    def get(self):
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+        if page < 1 or limit < 0:
+            data = {
+                'code': 0,
+                'type': 'experience',
+                'message': '参数不合法'
+            }
+            return jsonify(data)
+
+        if (page - 1) * limit >= Experience.query.count():
+            data = {
+                'code': 0,
+                'type': 'experience',
+                'message': '没有数据了！'
+            }
+        else:
+            experience_list = Experience.query.all()[start:end]
+            data_list = []
+            for experience in experience_list:
+                experience_data = {
+                    'id': experience.id,
+                    'uid': experience.uid,
+                    'city': experience.city,
+                    'title': experience.title,
+                    'content': experience.content,
+                    'create_time': experience.create_time,
+                    'type': experience.type,
+                }
+                data_list.append(experience_data)
+
+            data = {
+                'code': '1',
+                'type': 'experience',
+                'message': '成功！',
+                'data_list': data_list
+            }
+
+        return jsonify(data)
+
+
+
+# -----------------------------------------------  通过城市获取游记  -----------------------------------------------#
+
+class ExperienceByCityApi(Resource):
+    # 根据city获取景点数据，page为分页参数
+    def get(self, city):
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+
+        if page < 1 or limit < 0:
+            data = {'code': 0, 'message': '参数不合法'}
+            return jsonify(data)
+
+        city = City.query.filter_by(pinyin=city).first()
+        # 判断，如果城市名不存在
+        if not city:
+            data = {'code': 0,'type': 'experience', 'message': '该城市名没有被记录！请查询其他城市！'}
+        # 如果城市存在
+        else:
+            experience_list = Experience.query.all()[start:end]
+            data_list = []
+            # 如果查询到指定页面数据
+            if len(experience_list):
+                for experience in experience_list:
+                    experience_data = {
+                        'id': experience.id,
+                        'uid': experience.uid,
+                        'city': experience.city,
+                        'title': experience.title,
+                        'content': experience.content,
+                        'create_time': experience.create_time,
+                        'type': experience.type,
+                    }
+                    data_list.append(experience_data)
+
+                data = {'code': 1, 'type': 'experience','message': '成功！', 'data_list': data_list}
+            # 如果没有指定页面数据
+            else:
+                data = {'code': 0, 'type': 'experience','message': '没有数据'}
 
         return jsonify(data)
