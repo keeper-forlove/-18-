@@ -1,11 +1,9 @@
 
-from .main import main
 from .articals import article
 # from .user import user
 
 ########################################    浩南    ################################
 from .user import login,register,change_Password,change_mail,forget_Password,icon,info,favorite
-# from .main import main
 
 
 
@@ -13,7 +11,6 @@ from .user import login,register,change_Password,change_mail,forget_Password,ico
 # 蓝本配置
 DEFAULT_BLUEPRINT = (
     # 蓝本，前缀
-    # (main, ''),
     (login, '/user'),
     (register,'/user'),
     (change_Password, '/user'),
@@ -22,7 +19,6 @@ DEFAULT_BLUEPRINT = (
     (icon, '/user'),
     (info, '/user'),
     (favorite, '/user'),
-    (main, ''),
     (article, '/article')
 )
 

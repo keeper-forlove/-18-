@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful  import  Resource, abort
 from flask_login import current_user,login_user,logout_user,login_required
 from app.extensions import db
-from app.models import Country, City, Spots, Hotels, Foods, Experience
+from app.models import Country, City, Spots, Hotels, Foods, Experience, Shops
 
 
 class CoutryListApi(Resource):
@@ -203,6 +203,11 @@ class CityApi(Resource):
 class SpotsListApi(Resource):
     #获取所有景点数据，page为分页参数
     def get(self):
+        order=None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
         page =int(request.args.get('page',1))
         limit=int(request.args.get('limit',10))
         start = (page-1)*limit
@@ -223,7 +228,10 @@ class SpotsListApi(Resource):
                 'message':'没有数据'
             }
         else:
-            spot_list = Spots.query.all()[start:end]
+            if order:
+                spot_list = Spots.query.order_by(db.asc(order))[start:end]
+            else:
+                spot_list = Spots.query.all()[start:end]
             data_list =[]
             for spot in spot_list:
                 spot_data={
@@ -235,6 +243,8 @@ class SpotsListApi(Resource):
                     'price':spot.price,
                     'img_url_list':spot.pictures.split(','),
                     'detail': spot.detail,
+                    'score':spot.score,
+                    'rank':spot.rank,
                     'commens':spot.comments
                 }
                 data_list.append(spot_data)
@@ -255,6 +265,11 @@ class SpotsListApi(Resource):
 class SpotsByCityApi(Resource):
     #根据city获取景点数据，page为分页参数
     def get(self,city):
+        order=None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         start = (page - 1) * limit
@@ -271,7 +286,12 @@ class SpotsByCityApi(Resource):
         #如果城市存在
         else:
             cityid = city.id
-            s_list = Spots.query.filter_by(city=cityid)[start:end]
+            if order:
+                s_list = Spots.query.filter_by(city=cityid).order_by(db.asc(order))[start:end]
+            else:
+                s_list = Spots.query.filter_by(city=cityid)[start:end]
+            # s_list = Spots.query.filter_by(city=cityid)[start:end]
+
             #如果查询到指定页面数据
             if len(s_list):
                 spot_list = []
@@ -285,6 +305,8 @@ class SpotsByCityApi(Resource):
                         'price': spot.price,
                         'img_url_list': spot.pictures.split(','),
                         'detail': spot.detail,
+                        'score': spot.score,
+                        'rank': spot.rank,
                         'commens': spot.comments
                     }
                     spot_list.append(spot_data)
@@ -310,6 +332,11 @@ class SpotsByCityApi(Resource):
 class HotelsListApi(Resource):
     #获取所有景点数据，page为分页参数
     def get(self):
+        order = None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
         page =int(request.args.get('page',1))
         limit=int(request.args.get('limit',10))
         start = (page-1)*limit
@@ -329,7 +356,11 @@ class HotelsListApi(Resource):
                 'message':'没有数据了！'
             }
         else:
-            hotel_list = Hotels.query.all()[start:end]
+            if order:
+                hotel_list = Hotels.query.order_by(db.asc(order))[start:end]
+            else:
+                hotel_list = Hotels.query.all()[start:end]
+            # hotel_list = Hotels.query.all()[start:end]
             data_list =[]
             for hotel in hotel_list:
                 spot_data={
@@ -341,6 +372,8 @@ class HotelsListApi(Resource):
                     'price':hotel.price,
                     'img_url_list':hotel.pictures.split(','),
                     'detail': hotel.detail,
+                    'score': hotel.score,
+                    'rank': hotel.rank,
                     'commens': hotel.comments
                 }
                 data_list.append(spot_data)
@@ -359,6 +392,11 @@ class HotelsListApi(Resource):
 class HotelsByCityApi(Resource):
     # 根据city获取景点数据，page为分页参数
     def get(self, city):
+        order = None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         start = (page - 1) * limit
@@ -375,7 +413,11 @@ class HotelsByCityApi(Resource):
         # 如果城市存在
         else:
             cityid = city.id
-            h_list = Hotels.query.filter_by(city=cityid)[start:end]
+            if order:
+                h_list = Hotels.query.filter_by(city=cityid).order_by(db.asc(order))[start:end]
+            else:
+                h_list =Hotels.query.filter_by(city=cityid)[start:end]
+            # h_list = Hotels.query.filter_by(city=cityid)[start:end]
             # 如果查询到指定页面数据
             if len(h_list):
                 hotel_list = []
@@ -388,6 +430,8 @@ class HotelsByCityApi(Resource):
                         'price': hotel.price,
                         'img_url_list': hotel.pictures.split(','),
                         'detail': hotel.detail,
+                        'score': hotel.score,
+                        'rank': hotel.rank,
                         'commens': hotel.comments
                     }
                     hotel_list.append(hotel_data)
@@ -399,11 +443,132 @@ class HotelsByCityApi(Resource):
 
         return jsonify(data)
 
+
+################################################  获取商店/购物数据  ################################################
+
+class ShopslsListApi(Resource):
+    # 获取所有景点数据，page为分页参数
+    def get(self):
+        order = None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+        if page < 1 or limit < 0:
+            data = {
+                'code': 0,
+                'type': 'shop',
+                'message': '参数不合法'
+            }
+            return jsonify(data)
+
+        if (page - 1) * limit >= Shops.query.count():
+            data = {
+                'code': 0,
+                'type': 'shop',
+                'message': '没有数据！'
+            }
+        else:
+            if order:
+                shop_list = Shops.query.order_by(db.asc(order))[start:end]
+            else:
+                shop_list = Shops.query.all()[start:end]
+            # food_list = Foods.query.all()[start:end]
+            data_list = []
+            for shop in shop_list:
+                shop_data = {
+                    'id': shop.id,
+                    'name': shop.name,
+                    'city': City.query.filter_by(id=shop.city).first().name,
+                    'provience': shop.type,
+                    'adress': shop.adress,
+                    'price': shop.price,
+                    'img_url_list': shop.pictures.split(','),
+                    'detail': shop.detail,
+                    'score': shop.score,
+                    'commens': shop.comments
+                }
+                data_list.append(shop_data)
+
+            data = {
+                'code': '1',
+                'type': 'shop',
+                'message': '成功！',
+                'data_list': data_list
+            }
+
+        return jsonify(data)
+
+# -----------------------------------------------  通过城市获取购物数据  -----------------------------------------------#
+
+class ShopByCityApi(Resource):
+    # 根据city获取景点数据，page为分页参数
+    def get(self, city):
+        order = None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        start = (page - 1) * limit
+        end = page * limit
+
+        if page < 1 or limit < 0:
+            data = {'code': 0, 'message': '参数不合法'}
+            return jsonify(data)
+
+        city = City.query.filter_by(pinyin=city).first()
+        # 判断，如果城市名不存在
+        if not city:
+            data = {'code': 0,'type': 'food', 'message': '该城市名没有被记录！请查询其他城市！'}
+        # 如果城市存在
+        else:
+            cityid = city.id
+            if order:
+                f_list = Shops.query.filter_by(city=cityid).order_by(db.asc(order))[start:end]
+            else:
+                f_list =Shops.query.filter_by(city=cityid)[start:end]
+            # f_list = Foods.query.filter_by(city=cityid)[start:end]
+            # 如果查询到指定页面数据
+            if len(f_list):
+                shop_list = []
+                for shop in f_list:
+                    shop_data = {
+                        'id': shop.id, 'name': shop.name,
+                        'city': City.query.filter_by(id=shop.city).first().name,
+                        'provience': shop.type,
+                        'adress': shop.adress,
+                        'price': shop.price,
+                        'img_url_list': shop.pictures.split(','),
+                        'detail': shop.detail,
+                        'score': shop.score,
+                        'commens': shop.comments
+                    }
+                    shop_list.append(shop_data)
+
+                data = {'code': 1, 'type': 'shop','message': '成功！', 'food_list': shop_list}
+            # 如果没有指定页面数据
+            else:
+                data = {'code': 0, 'type': 'shop','message': '没有数据'}
+
+        return jsonify(data)
+
+
 ################################################  获取美食数据  ################################################
 
 class FoodslsListApi(Resource):
     # 获取所有景点数据，page为分页参数
     def get(self):
+        order = None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         start = (page - 1) * limit
@@ -423,7 +588,11 @@ class FoodslsListApi(Resource):
                 'message': '没有数据了！'
             }
         else:
-            food_list = Foods.query.all()[start:end]
+            if order:
+                food_list = Foods.query.order_by(db.asc(order))[start:end]
+            else:
+                food_list = Foods.query.all()[start:end]
+            # food_list = Foods.query.all()[start:end]
             data_list = []
             for food in food_list:
                 food_data = {
@@ -435,6 +604,7 @@ class FoodslsListApi(Resource):
                     'price': food.price,
                     'img_url_list': food.pictures.split(','),
                     'detail': food.detail,
+                    'score': food.score,
                     'commens': food.comments
                 }
                 data_list.append(food_data)
@@ -453,6 +623,11 @@ class FoodslsListApi(Resource):
 class FoodsByCityApi(Resource):
     # 根据city获取景点数据，page为分页参数
     def get(self, city):
+        order = None
+        try:
+            order = request.args.get('order')
+        except:
+            pass
         page = int(request.args.get('page', 1))
         limit = int(request.args.get('limit', 10))
         start = (page - 1) * limit
@@ -469,7 +644,11 @@ class FoodsByCityApi(Resource):
         # 如果城市存在
         else:
             cityid = city.id
-            f_list = Foods.query.filter_by(city=cityid)[start:end]
+            if order:
+                f_list = Foods.query.filter_by(city=cityid).order_by(db.asc(order))[start:end]
+            else:
+                f_list =Foods.query.filter_by(city=cityid)[start:end]
+            # f_list = Foods.query.filter_by(city=cityid)[start:end]
             # 如果查询到指定页面数据
             if len(f_list):
                 food_list = []
@@ -482,6 +661,7 @@ class FoodsByCityApi(Resource):
                         'price': food.price,
                         'img_url_list': food.pictures.split(','),
                         'detail': food.detail,
+                        'score': food.score,
                         'commens': food.comments
                     }
                     food_list.append(food_data)

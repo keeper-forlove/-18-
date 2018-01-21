@@ -6,9 +6,8 @@ from app.views import config_blueprint
 #导入restful模块和相关资源类
 from flask.ext.restful import Api
 from app.views.api import CoutryListApi, CoutryApi, CityListApi, CityApi, SpotsListApi, SpotsByCityApi, HotelsByCityApi, \
-    HotelsListApi, FoodslsListApi, FoodsByCityApi, ExperiencelsListApi, ExperienceByCityApi
-
-
+    HotelsListApi, FoodslsListApi, FoodsByCityApi, ExperiencelsListApi, ExperienceByCityApi, ShopslsListApi, \
+    ShopByCityApi
 
 
 def create_app(config_name):
@@ -22,6 +21,8 @@ def create_app(config_name):
     config_extensions(app)
     #配置蓝本
     config_blueprint(app)
+    # 自定义错误页面
+    config_errorhandler(app)
 
     #初始化api
     api = Api(app)
@@ -29,7 +30,7 @@ def create_app(config_name):
     api.add_resource(CoutryApi, '/country/<int:id>')
     api.add_resource(CityListApi, '/city/')
     api.add_resource(CityApi, '/city/<int:id>')
-    api.add_resource(SpotsListApi,'/spots/','/spots')
+    api.add_resource(SpotsListApi,'/spots/','/spotss')
     api.add_resource(SpotsByCityApi,'/spots/<string:city>','/spots/<string:city>/')
     api.add_resource(HotelsListApi,'/hotels/','/hotels')
     api.add_resource(HotelsByCityApi,'/hotels/<string:city>','/hotels/<string:city>/')
@@ -37,6 +38,8 @@ def create_app(config_name):
     api.add_resource(FoodsByCityApi,'/foods/<string:city>','/foods/<string:city>/')
     api.add_resource(ExperiencelsListApi,'/experiences/','/experiences')
     api.add_resource(ExperienceByCityApi,'/experiences/<string:city>','/experiences/<string:city>/')
+    api.add_resource(ShopslsListApi,'/shops/','/shops')
+    api.add_resource(ShopByCityApi,'/shops/<string:city>','/shops/<string:city>/')
 
     # api.init_app(app)
 

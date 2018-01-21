@@ -100,6 +100,7 @@
 - get传参数：
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
+  - sort参数（可选）：排序方式，可选（parice,rank,score,name)
 - 例子：http://127.0.0.1:5000/spots?limit=5&page=1
 - 响应结果：
   - 1.数据超出查询范围：
@@ -132,6 +133,8 @@
 		"adress": "重庆市重庆巴南区东泉镇。",
 		    
 		"price": "37",
+		"score":10,
+		"rank":5,
 		    
 		"detail": "重庆航空温泉酒店是集餐饮、住宿、娱乐、休闲、泡浴、会议六大功能为一体的大型综合旅游度假酒店......",
 		  
@@ -158,6 +161,7 @@
 - get传参数：
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
+  - sort参数（可选）：排序方式，可选（parice,rank,score,name)
 - 例子：http://127.0.0.1:5000/spots/Beijing?limit=5&page=10
 - 响应结果：
   - 1.数据超出查询范围：
@@ -212,6 +216,7 @@
 - get传参数：
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
+  - sort参数（可选）：排序方式，可选（parice,rank,score,name)
 - 例子：http://127.0.0.1:5000/hotels?limit=5&page=1
 - 响应结果：同上(api12)
  ```
@@ -223,28 +228,31 @@
 - get传参数：
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
+  - sort参数（可选）：排序方式，可选（parice,rank,score,name)
 - 例子：http://127.0.0.1:5000/hotels/Beijing?limit=5&page=10
 - 响应结果：同上(api12)
  ```
 
-15.获取酒店数据
+15.获取美食数据
 
 - 请求地址：http://127.0.0.1:5000/foods
 - 请求方式：GET
 - get传参数：
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
+  - sort参数（可选）：排序方式，可选（parice,score,name)
 - 例子：http://127.0.0.1:5000/foods?limit=5&page=1
 - 响应结果：同上(api12)
  ```
 
-16.根据城市获取酒店数据
+16.根据城市获取美食数据
 
 - 请求地址：http://127.0.0.1:5000/foods/<string:city>
 - 请求方式：GET
 - get传参数：
   - page参数：请求第几页数据
   - limit参数：每页请求多少条数据
+  - sort参数（可选）：排序方式，可选（parice,score,name)
 - 例子：http://127.0.0.1:5000/foods/Beijing?limit=5&page=10
 - 响应结果：同上(api12)
  ```
